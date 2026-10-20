@@ -48,13 +48,15 @@ header{
   border:1px solid var(--line);background:var(--card);border-radius:9px;
   padding:5px 10px;font-size:13px;color:var(--ink);cursor:pointer;
 }
-.iconbtn.on{border-color:var(--accent);color:var(--accent);font-weight:700;background:#fff6f1}
+.iconbtn.on{border-color:var(--accent);font-weight:700;background:#fff1e8 !important}  /* 状态用底色表达，图标颜色保持与另两个一致 */
 .ib{display:flex;align-items:center;justify-content:center;padding:0;width:32px;height:30px;box-sizing:border-box}
 .ib svg{width:18px;height:18px;display:block;color:inherit}
-.ib.on svg,.iconbtn.on svg{color:var(--accent)}
+.ib.on svg,.iconbtn.on svg{color:var(--ink)}   /* 开启自测时图标颜色也保持一致，只靠底色区分 */
 /* ⇄ 与其他两个按钮尺寸完全一致，仅颜色区分 */
-.swbtn.ib{color:var(--accent)}
+.swbtn.ib{color:var(--ink)}   /* 三个图标常态同色 */
 .swbtn.ib svg{width:18px;height:18px}
+/* 常态三图标同色同尺寸；只有「自测开启」这一个状态用橙色表示 */
+.swbtn.on{color:var(--accent)}
 .h2{display:flex;justify-content:flex-end;align-items:center;gap:7px;padding:3px 0 6px}
 .chip{
   flex:1;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:9px;
@@ -66,7 +68,7 @@ header{
 .swbtn{
   margin-left:3px;
   flex:0 0 32px;border:1px solid var(--line);background:var(--card);border-radius:9px;
-  color:var(--accent);cursor:pointer;
+  color:var(--ink);cursor:pointer;    /* 与另两个图标同色 */
 }
 .swbtn:active{background:#f2ece0}
 
@@ -77,7 +79,7 @@ header{
 .meta .note{font-size:12.5px;color:var(--muted);line-height:1.5}
 
 .grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;
   flex:1 1 auto;min-height:0;          /* 关键：允许收缩，不吃满就溢出 */
   grid-template-rows:1fr 1fr;          /* 两行均分剩余高度 */
 }
@@ -101,7 +103,7 @@ header{
 body.quiz .main,body.quiz .hint,body.quiz .rom{
   color:transparent;background:var(--hide);border-radius:5px;transition:.15s;
 }
-body.quiz .on{color:var(--ink)!important;background:transparent!important}
+body.quiz .cell .on,body.quiz .txt .on,body.quiz .hint.on{color:var(--ink)!important;background:transparent!important}
 body.quiz .hint.on{color:var(--accent)!important}
 body.quiz .rom.on{color:var(--muted)!important}
 body:not(.quiz) .hint{display:none}
@@ -127,8 +129,14 @@ body:not(.quiz) .hint{display:none}
 .pg .ico{width:13px;height:13px;opacity:.55}
 
 /* ---- 搜索 / 跳转面板 ---- */
-.findMask{position:fixed;inset:0;z-index:45;background:rgba(30,26,20,.42);display:none;align-items:flex-start}
+.findMask{position:fixed;left:0;top:0;right:0;bottom:0;z-index:45;
+  background:rgba(30,26,20,.42);display:none;align-items:flex-start}
+.findMask .findBox{max-height:70vh}
 .findMask.open{display:flex}
+/* 搜索打开时关掉毛玻璃：backdrop-filter 与全屏遮罩同屏渲染会显著推高 GPU 内存，
+   在 iPhone 7 Plus 这类 3GB 内存机型上容易触发 Safari 标签页崩溃 */
+body.finding header,body.finding .bar{backdrop-filter:none !important;-webkit-backdrop-filter:none !important;
+  background:var(--bg) !important}
 .findBox{background:var(--card);width:100%;max-width:720px;margin:0 auto;
   border-radius:0 0 16px 16px;padding:12px 14px calc(14px + env(safe-area-inset-bottom));
   box-shadow:0 8px 30px rgba(0,0,0,.18);max-height:82vh;display:flex;flex-direction:column}
@@ -139,7 +147,8 @@ body:not(.quiz) .hint{display:none}
 .findX{flex:0 0 auto;border:1px solid var(--line);background:var(--bg);border-radius:10px;
   width:40px;height:40px;display:flex;align-items:center;justify-content:center;
   font-size:19px;color:var(--muted);cursor:pointer}
-.findList{margin-top:10px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.findList{margin-top:10px;overflow-y:auto;flex:1 1 auto;min-height:0;
+  overscroll-behavior:contain;-webkit-overflow-scrolling:auto}
 .findItem{display:flex;gap:10px;align-items:baseline;padding:9px 6px;border-radius:8px;cursor:pointer}
 .findItem:active{background:rgba(0,0,0,.05)}
 .findItem .n{flex:0 0 42px;font-size:12px;color:var(--muted);font-weight:700;text-align:right}
@@ -147,6 +156,8 @@ body:not(.quiz) .hint{display:none}
 .findItem .c em{background:rgba(200,120,60,.22);font-style:normal;border-radius:2px}
 .findItem .zh{display:block;color:var(--muted);font-size:12.5px;margin-top:1px}
 .findEmpty{padding:18px 6px;color:var(--muted);font-size:14px;text-align:center}
+/* 缺失译文提示：平时 display:none 完全不占高度 */
+.note{display:none;padding:6px 2px 0;font-size:13px;color:var(--muted);flex:0 0 auto}
 @keyframes ctpfade{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .pg b{color:var(--accent);font-size:15px}
 .dot.cur{background:var(--accent);transform:scale(1.25)}
@@ -243,12 +254,7 @@ body:not(.quiz) .hint{display:none}
 </div></header>
 
 <div class="wrap main">
-  <div class="meta">
-    <div class="m">
-      <div class="ti" id="mTi"></div>
-      <div class="note" id="mNote"></div>
-    </div>
-  </div>
+  <div class="note" id="mNote"></div>
   <div class="grid" id="grid"></div>
 </div>
 
@@ -261,7 +267,7 @@ body:not(.quiz) .hint{display:none}
 <div class="findMask" id="findMask"><div class="findBox">
   <div class="findRow">
     <input class="findInput" id="findInput" type="search" autocomplete="off"
-           placeholder="  " id="findInput">
+           inputmode="search" enterkeyhint="search" placeholder="">
     <div class="findX" id="findX" role="button" tabindex="0">✕</div>
   </div>
   <div class="findList" id="findList"></div>
@@ -1022,9 +1028,22 @@ const LANGS=[
  {c:'zh-CN',n:'简体中文',s:'Chinese'},
  {c:'en',n:'English',s:'English'}
 ];
-const APP_VERSION='3.20.0';
-const APP_BUILD=25;
+const APP_VERSION='3.24.0';
+const APP_BUILD=29;
 const RELEASES=[
+ {v:'3.24.0',d:'2026-10-20',n:[
+   '修复底部搜索打开输入时闪退：移除 iOS 崩溃诱因、结果限 20 条、输入防抖',
+   '修复输入两位数页码时被提前跳走（如 12 会在 1 时跳转）'
+ ]},
+ {v:'3.23.0',d:'2026-10-20',n:[
+   '修复第 1 页 I 的读音：iOS 不再念成 capital I，直接读 /aɪ/'
+ ]},
+ {v:'3.22.0',d:'2026-10-20',n:[
+   '顶部三个图标统一为同色、同尺寸、同线宽'
+ ]},
+ {v:'3.21.0',d:'2026-10-20',n:[
+   '删除页面顶部的 Page N 标题（与底部页码重复），图片显示更大'
+ ]},
  {v:'3.20.0',d:'2026-10-20',n:[
    '整页自适应屏幕，不再上下滚动（四宫格自动填满剩余空间）',
    '点底部页码可搜索句子或输入页码直接跳转，支持中英文搜索',
@@ -2722,6 +2741,10 @@ function utter(text,code){
    朗读前转成正常大小写，页面显示仍保留原书原貌。 */
 function ttsText(t){
   if(!t) return t;
+  /* iOS 语音引擎会把单独的大写 "I" 念成 "capital I"（读成字母名）。
+     整句只有这一个词时改用同音词，发音仍是 /aɪ/，页面显示不受影响。 */
+  const raw=String(t).trim();
+  if(raw==='I') return 'eye';
   return String(t).replace(/[A-Za-z][A-Za-z']*/g, function(w){
     // 长度 >=2 且全部大写 → 首字母大写、其余小写；单字母（I / A）原样保留
     if(w.length>=2 && w===w.toUpperCase() && /^[A-Z']+$/.test(w)){
@@ -3035,13 +3058,12 @@ function syncLauncherLabel(){
 const SPK='<svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>';
 
 /* 顶部两个图标：自测（问号圆圈）与设置（齿轮） */
-const ICO_QUIZ='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.1 9.3a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><circle cx="12" cy="17.2" r=".9" fill="currentColor" stroke="none"/></svg>';
-const ICO_SWAP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7H20l-3.5-3.5M16 17H4l3.5 3.5"/></svg>';
-const ICO_SET='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.1 14.4a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.8.4l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H2.8a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.9-1.2V2.8a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+const ICO_QUIZ='<svg viewBox="3 3 18 18" fill="none" stroke="currentColor" stroke-width="1.42" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.1 9.3a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><circle cx="12" cy="17.2" r=".9" fill="currentColor" stroke="none"/></svg>';
+const ICO_SWAP='<svg viewBox="3.5 3.5 17 17" fill="none" stroke="currentColor" stroke-width="1.42" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7H20l-3.5-3.5M16 17H4l3.5 3.5"/></svg>';
+const ICO_SET='<svg viewBox="0.8 1.2 22.5 21.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.1 14.4a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.8.4l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H2.8a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.9-1.2V2.8a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.5 1z"/></svg>';
 
 function render(){
   const L=LESSONS[st.lesson], p=page(), ps=cur();
-  $('mTi').textContent=TS(p.ti,st.lang);
   const r=fullOf(st.lang);
   /* 只在目标语言尚未录入时提示；阅读顺序说明只在设置「怎么用」里保留一份 */
   $('mNote').textContent = r>=0.999 ? '' : UF('notReady',{NAME:nameOf(st.lang)});
@@ -3375,14 +3397,14 @@ try{
 applyUI();
 
 /* =========================================================
-   搜索 / 跳转：点底部页码打开，可按英文或中文搜索，也可直接跳页
+   搜索 / 跳转：点底部页码打开
+   为 iOS Safari 做过稳健化：不预渲染、结果限 20 条、输入防抖、
+   打开时不自动聚焦（避免键盘与遮罩同屏合成导致标签页崩溃）
    ========================================================= */
-const FIND_ICO='';
 function findIndex(){
-  /* 建立全部可搜索条目：每页取学习语言 + 对照语言的四句文本 */
   const out=[];
   LESSONS.forEach(function(ls,li){
-    ls.pages.forEach(function(p,pi){
+    (ls.pages||[]).forEach(function(p,pi){
       let zh='', en='';
       (p.s||[]).forEach(function(it){
         const a=T(it,'en')||''; const b=T(it,'zh-CN')||T(it,'zh')||'';
@@ -3391,7 +3413,7 @@ function findIndex(){
       });
       if(!en && !zh) return;
       let no='';
-      try{ const raw=TS(p.no,'en')||''; const m=String(raw).match(/\d+/); no=m?m[0]:''; }catch(e){ no=''; }
+      try{ const m=String(TS(p.no,'en')||'').match(/\d+/); no=m?m[0]:''; }catch(e){ no=''; }
       if(!no) no=String(pi+1);
       out.push({li:li,pi:pi,no:no,en:en,zh:zh});
     });
@@ -3401,6 +3423,9 @@ function findIndex(){
 let FIND_CACHE=null;
 function findData(){ if(!FIND_CACHE) FIND_CACHE=findIndex(); return FIND_CACHE; }
 
+function escHtml(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
 function hl(text,q){
   const t=String(text||'');
   if(!q) return escHtml(t);
@@ -3408,71 +3433,123 @@ function hl(text,q){
   if(i<0) return escHtml(t);
   return escHtml(t.slice(0,i))+'<em>'+escHtml(t.slice(i,i+q.length))+'</em>'+escHtml(t.slice(i+q.length));
 }
-function escHtml(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){
-  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+const FIND_MAX=20;          /* 结果上限：DOM 节点越少越稳 */
+let findTimer=null;
 
 function renderFind(q){
   const box=$('findList'); if(!box) return;
   q=(q||'').trim();
-  let rows=findData();
-  if(q){
-    const lq=q.toLowerCase();
-    rows=rows.filter(function(r){
-      return (r.en&&r.en.toLowerCase().indexOf(lq)>=0)
-          || (r.zh&&r.zh.indexOf(q)>=0)
-          ;
-    });
-  }
-  if(!rows.length){
-    box.innerHTML='<div class="findEmpty">'+(uiKey()==='zh'?'没有找到，换个词试试':'No result')+'</div>';
+  /* 空输入：只给提示，不渲染任何列表 —— 打开瞬间零 DOM 压力 */
+  if(!q){
+    box.innerHTML='<div class="findEmpty">'
+      +(uiKey()==='zh'?'输入英文或中文开始搜索，或直接输入页码':'Type a word, or a page number')+'</div>';
     return;
   }
-  const show=rows.slice(0,60);
-  box.innerHTML=show.map(function(r){
-    return '<div class="findItem" data-li="'+r.li+'" data-pi="'+r.pi+'">'
-      + '<span class="n">'+r.no+'</span>'
+  const lq=q.toLowerCase();
+  const all=findData();
+  const rows=[];
+  for(let i=0;i<all.length && rows.length<FIND_MAX;i++){
+    const r=all[i];
+    if((r.en&&r.en.toLowerCase().indexOf(lq)>=0)||(r.zh&&r.zh.indexOf(q)>=0)) rows.push(r);
+  }
+  if(!rows.length){
+    box.innerHTML='<div class="findEmpty">'
+      +(uiKey()==='zh'?'没有找到，换个词试试':'No result — try another word')+'</div>';
+    return;
+  }
+  /* 用字符串一次性拼接后再写入，避免逐条 innerHTML 触发大量 reflow */
+  let html='';
+  for(let i=0;i<rows.length;i++){
+    const r=rows[i];
+    html+='<div class="findItem" data-li="'+r.li+'" data-pi="'+r.pi+'">'
+      + '<span class="n">'+escHtml(r.no)+'</span>'
       + '<span class="c">'+hl(r.en||'',q)
       + (r.zh?'<span class="zh">'+hl(r.zh,q)+'</span>':'')+'</span></div>';
-  }).join('')
-  + (rows.length>60?'<div class="findEmpty">'+(uiKey()==='zh'?('还有 '+(rows.length-60)+' 条，继续输入更精确'):('+'+(rows.length-60)+' more'))+'</div>':'');
-  box.querySelectorAll('.findItem').forEach(function(el){
-    el.onclick=function(){
-      st.lesson=+el.getAttribute('data-li'); st.idx=+el.getAttribute('data-pi');
-      save(); closeFind(); render();
-    };
-  });
+  }
+  box.innerHTML=html;
+  /* 事件委托：只挂一个监听，不给每条都绑 onclick */
+  box.onclick=function(e){
+    const it=e.target.closest? e.target.closest('.findItem') : null;
+    if(!it) return;
+    st.lesson=+it.getAttribute('data-li'); st.idx=+it.getAttribute('data-pi');
+    save(); closeFind(); render();
+  };
 }
+
 function openFind(){
   const m=$('findMask'); if(!m) return;
   m.classList.add('open');
-  const ph=(uiKey()==='zh')?'搜索句子或输入页码':'Search or type a page number';
-  const inp=$('findInput'); if(inp) inp.placeholder=ph;
+  document.body.classList.add('finding');
+  const inp=$('findInput');
+  if(inp){
+    inp.value='';
+    inp.placeholder=(uiKey()==='zh')?'搜索句子，或输入页码':'Search, or type a page number';
+  }
   renderFind('');
-  setTimeout(function(){ try{ inp.focus(); }catch(e){} },120);
+  /* 不自动聚焦：让遮罩先稳定下来，用户点输入框时键盘才弹出。
+     自动 focus 会让「键盘弹出 + 遮罩布局 + 页面 resize」三件事同时发生，
+     是 iOS Safari 标签页崩溃的常见诱因。 */
 }
 function closeFind(){
-  const m=$('findMask'); if(m) m.classList.remove('open');
-  const inp=$('findInput'); if(inp){ inp.value=''; inp.blur(); }
+  const m=$('findMask'); if(m){
+    m.classList.remove('open');
+    if(m.classList) m.classList.remove('open');
+  }
+  document.body.classList.remove('finding');
+  const inp=$('findInput');
+  if(inp){ inp.value=''; inp.blur(); }
+  if(findTimer){ clearTimeout(findTimer); findTimer=null; }
+}
+/* 数字跳页：等用户停手 700ms 再跳，否则输入 12 会在 1 时就跳走 */
+let jumpTimer=null;
+function maybeJump(q){
+  if(jumpTimer){ clearTimeout(jumpTimer); jumpTimer=null; }
+  if(!/^\d+$/.test(q)) return;
+  const n=parseInt(q,10); if(!n) return;
+  jumpTimer=setTimeout(function(){
+    jumpTimer=null;
+    const inp=$('findInput');
+    if(inp && inp.value.trim()!==String(n)) return;   /* 用户还在继续输入 */
+    const ps=cur();
+    if(n>=1 && n<=ps.length){
+      st.idx=n-1; save(); closeFind(); render();
+    }
+  },700);
 }
 function initFind(){
-  const d=$('dots'); if(d){
+  const d=$('dots');
+  if(d){
     d.onclick=openFind;
     d.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openFind(); } };
   }
   const x=$('findX'); if(x){ x.onclick=closeFind; }
-  const m=$('findMask'); if(m){ m.onclick=function(e){ if(e.target===m) closeFind(); }; }
-  const inp=$('findInput'); if(inp){
+  const m=$('findMask');
+  if(m){ m.onclick=function(e){ if(e.target===m) closeFind(); }; }
+  const inp=$('findInput');
+  if(inp){
+    inp.onclick=function(e){ e.stopPropagation(); };
+    /* 输入防抖 180ms：连续打字只在停顿时搜一次 */
     inp.oninput=function(){
       const q=inp.value.trim();
-      /* 纯数字 → 直接跳到该页 */
-      if(/^\d+$/.test(q)){
-        const n=parseInt(q,10);
-        const ps=cur();
-        if(n>=1 && n<=ps.length){ st.idx=n-1; save(); closeFind(); render(); return; }
-      }
-      renderFind(q);
+      if(findTimer){ clearTimeout(findTimer); findTimer=null; }
+      findTimer=setTimeout(function(){
+        renderFind(q);
+        maybeJump(q);
+      },180);
     };
-    inp.onkeydown=function(e){ if(e.key==='Enter'){ inp.blur(); } };
+    inp.onkeydown=function(e){
+      if(e.key==='Enter'){
+        e.preventDefault();
+        const q=inp.value.trim();
+        if(/^\d+$/.test(q)){
+          const n=parseInt(q,10), ps=cur();
+          if(n>=1&&n<=ps.length){ st.idx=n-1; save(); closeFind(); render(); }
+        }
+        inp.blur();
+      }
+      if(e.key==='Escape'){ closeFind(); }
+    };
   }
 }
 initFind();
