@@ -21,6 +21,10 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
+  /* 单页不滚动：整屏 flex 列布局，四宫格自动吃掉剩余空间 */
+  display:flex; flex-direction:column;
+  height:100vh; height:100dvh;
+  overflow:hidden;
   background:var(--bg); color:var(--ink);
   font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans JP","Microsoft YaHei",system-ui,sans-serif;
   font-size:16px; line-height:1.65;
@@ -28,14 +32,17 @@ body{
   -webkit-font-smoothing:antialiased;
 }
 .wrap{max-width:720px;margin:0 auto;padding:0 12px}
+/* 主体区：占据 header 与底栏之间的全部剩余空间，内部再分 meta / grid */
+.wrap.main{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;width:100%}
 
 header{
   position:sticky;top:0;z-index:20;background:rgba(250,247,240,.95);
+  flex:0 0 auto;
   backdrop-filter:saturate(1.4) blur(8px);
   border-bottom:1px solid var(--line);
 }
-.h1{display:flex;align-items:center;gap:8px;padding:9px 0 4px}
-.h1 h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.02em;flex:1;justify-content:center;text-align:center;white-space:nowrap}
+.h1{display:flex;align-items:center;gap:8px;padding:7px 0 2px}
+.h1 h1{font-size:15.5px;margin:0;font-weight:700;letter-spacing:.02em;flex:1;justify-content:center;text-align:center;white-space:nowrap}
 .h1 h1 small{display:block;font-size:9.5px;font-weight:400;color:var(--muted);letter-spacing:.12em}
 .iconbtn{
   border:1px solid var(--line);background:var(--card);border-radius:9px;
@@ -48,7 +55,7 @@ header{
 /* ⇄ 与其他两个按钮尺寸完全一致，仅颜色区分 */
 .swbtn.ib{color:var(--accent)}
 .swbtn.ib svg{width:18px;height:18px}
-.h2{display:flex;justify-content:flex-end;align-items:center;gap:7px;padding:4px 0 8px}
+.h2{display:flex;justify-content:flex-end;align-items:center;gap:7px;padding:3px 0 6px}
 .chip{
   flex:1;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:9px;
   padding:5px 9px;font-size:11.5px;line-height:1.4;cursor:pointer;color:var(--muted);
@@ -63,20 +70,25 @@ header{
 }
 .swbtn:active{background:#f2ece0}
 
-.meta{padding:8px 2px 4px;display:flex;align-items:flex-start;gap:8px}
+.meta{padding:6px 2px 2px;display:flex;align-items:flex-start;gap:8px;flex:0 0 auto}
 .meta .m{flex:1;min-width:0}
 .meta .no{font-size:11px;color:var(--muted);letter-spacing:.05em}
-.meta .ti{font-size:18px;font-weight:700;margin:0 0 2px}
+.meta .ti{font-size:16.5px;font-weight:700;margin:0 0 1px;line-height:1.3}
 .meta .note{font-size:12.5px;color:var(--muted);line-height:1.5}
 
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;
+  flex:1 1 auto;min-height:0;          /* 关键：允许收缩，不吃满就溢出 */
+  grid-template-rows:1fr 1fr;          /* 两行均分剩余高度 */
+}
 .cell{
   background:var(--card);border:1px solid var(--line);border-radius:14px;
-  padding:8px 8px 10px;display:flex;flex-direction:column;position:relative;
+  padding:7px 7px 8px;display:flex;flex-direction:column;position:relative;
+  min-height:0;overflow:hidden;         /* 允许被压缩，内容不撑破格子 */
 }
 .art{background:#fdfbf6;border:1px solid #f0ebe0;border-radius:10px;overflow:hidden}
 .art svg{display:block;width:100%;height:auto}
-.txt{padding:8px 3px 0;flex:1;display:flex;flex-direction:column;gap:2px}
+.txt{padding:6px 3px 0;flex:0 0 auto;display:flex;flex-direction:column;gap:2px}
 .rom{font-size:11.5px;color:var(--muted);line-height:1.4}
 .main{font-size:16px;font-weight:600;line-height:1.5;border-radius:5px}
 .hint{font-size:12.5px;color:var(--accent);line-height:1.45;margin-top:2px}
@@ -98,15 +110,44 @@ body:not(.quiz) .hint{display:none}
   position:fixed;left:0;right:0;bottom:0;z-index:20;
   background:rgba(250,247,240,.96);backdrop-filter:blur(8px);
   border-top:1px solid var(--line);
-  padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  padding:7px 12px calc(7px + env(safe-area-inset-bottom));
 }
 .bar .in{max-width:720px;margin:0 auto;display:flex;gap:8px;align-items:center}
 .nav{
-  flex:0 0 62px;text-align:center;border:1px solid var(--line);background:var(--card);
-  border-radius:10px;padding:9px 0;font-size:15px;font-weight:700;cursor:pointer;
+  flex:0 0 58px;text-align:center;border:1px solid var(--line);background:var(--card);
+  border-radius:10px;padding:7px 0;font-size:15px;font-weight:700;cursor:pointer;
 }
 .nav:active{background:#f2ece0}
 .pg{flex:1;text-align:center;font-size:13px;color:var(--muted);font-weight:600;line-height:1.4;align-self:center}
+/* 页码变成可点击入口：点它弹出搜索/跳转面板 */
+.pg{display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;
+    border-radius:8px;padding:2px 4px;-webkit-tap-highlight-color:transparent}
+.pg:active{background:rgba(0,0,0,.05)}
+.pg b{color:var(--ink)}
+.pg .ico{width:13px;height:13px;opacity:.55}
+
+/* ---- 搜索 / 跳转面板 ---- */
+.findMask{position:fixed;inset:0;z-index:45;background:rgba(30,26,20,.42);display:none;align-items:flex-start}
+.findMask.open{display:flex}
+.findBox{background:var(--card);width:100%;max-width:720px;margin:0 auto;
+  border-radius:0 0 16px 16px;padding:12px 14px calc(14px + env(safe-area-inset-bottom));
+  box-shadow:0 8px 30px rgba(0,0,0,.18);max-height:82vh;display:flex;flex-direction:column}
+.findRow{display:flex;gap:8px;align-items:center}
+.findInput{flex:1;min-width:0;font-size:16px;padding:10px 12px;border:1px solid var(--line);
+  border-radius:10px;background:var(--bg);color:var(--ink);font-family:inherit}
+.findInput:focus{outline:none;border-color:var(--accent)}
+.findX{flex:0 0 auto;border:1px solid var(--line);background:var(--bg);border-radius:10px;
+  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+  font-size:19px;color:var(--muted);cursor:pointer}
+.findList{margin-top:10px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.findItem{display:flex;gap:10px;align-items:baseline;padding:9px 6px;border-radius:8px;cursor:pointer}
+.findItem:active{background:rgba(0,0,0,.05)}
+.findItem .n{flex:0 0 42px;font-size:12px;color:var(--muted);font-weight:700;text-align:right}
+.findItem .c{flex:1;min-width:0;font-size:14px;line-height:1.45}
+.findItem .c em{background:rgba(200,120,60,.22);font-style:normal;border-radius:2px}
+.findItem .zh{display:block;color:var(--muted);font-size:12.5px;margin-top:1px}
+.findEmpty{padding:18px 6px;color:var(--muted);font-size:14px;text-align:center}
+@keyframes ctpfade{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 .pg b{color:var(--accent);font-size:15px}
 .dot.cur{background:var(--accent);transform:scale(1.25)}
 
@@ -158,7 +199,7 @@ body:not(.quiz) .hint{display:none}
 .art img{width:100%;height:100%;object-fit:contain;display:block}
 .grid.one{grid-template-columns:1fr}
 .cell.rv{cursor:pointer}
-.cell.rv .art{height:42vh}
+.cell.rv .art{flex:1 1 auto;min-height:0}    /* 高度由格子剩余空间决定，不再写死 vh */
 .ans{font-size:15px;color:#5c5548;line-height:1.5;padding:9px 11px;border-radius:8px;
      background:#efe9dd;border:1px dashed var(--line);margin-top:8px}
 .ans:not(.on){color:transparent;text-shadow:0 0 9px rgba(90,80,60,.5);user-select:none}
@@ -201,7 +242,7 @@ body:not(.quiz) .hint{display:none}
   </div>
 </div></header>
 
-<div class="wrap">
+<div class="wrap main">
   <div class="meta">
     <div class="m">
       <div class="ti" id="mTi"></div>
@@ -213,8 +254,17 @@ body:not(.quiz) .hint{display:none}
 
 <div class="bar"><div class="in">
   <div class="nav" id="prev">←</div>
-  <div class="pg" id="dots"></div>
+  <div class="pg" id="dots" role="button" tabindex="0" aria-label="搜索或跳转页面"></div>
   <div class="nav" id="next">→</div>
+</div></div>
+
+<div class="findMask" id="findMask"><div class="findBox">
+  <div class="findRow">
+    <input class="findInput" id="findInput" type="search" autocomplete="off"
+           placeholder="  " id="findInput">
+    <div class="findX" id="findX" role="button" tabindex="0">✕</div>
+  </div>
+  <div class="findList" id="findList"></div>
 </div></div>
 
 <div class="sheet" id="sheet"><div class="card">
@@ -972,16 +1022,20 @@ const LANGS=[
  {c:'zh-CN',n:'简体中文',s:'Chinese'},
  {c:'en',n:'English',s:'English'}
 ];
-const APP_VERSION='3.19.0t';
-const APP_BUILD=24;
+const APP_VERSION='3.20.0';
+const APP_BUILD=25;
 const RELEASES=[
- {v:'3.19.0',d:'2026-10-10',n:[
-   '桌面图标名切换改用 App 内原生接口（javac 真实编译），不再依赖手写字节码与额外 dex'
+ {v:'3.20.0',d:'2026-10-20',n:[
+   '整页自适应屏幕，不再上下滚动（四宫格自动填满剩余空间）',
+   '点底部页码可搜索句子或输入页码直接跳转，支持中英文搜索',
+   '修复进度记忆：升级版本不再丢失上次学到的页面',
+   '重新打开时提示回到上次位置，可一键从头开始',
+   '精简头部与底栏，图片显示更大'
  ]},
- {v:'3.18.0',d:'2026-10-10',n:[
+ {v:'3.19.0',d:'2026-10-10',n:[
    '⇄ 改为 SVG 图标，三个顶部按钮统一尺寸'
  ]},
- {v:'3.17.0',d:'2026-10-10',n:[
+ {v:'3.18.0',d:'2026-10-10',n:[
    '顶部「自测」「设置」改为图标按钮'
  ]},
 ];
@@ -2539,9 +2593,12 @@ let st=Object.assign({},DEF);
 /* 版本升级时回到新默认，避免旧缓存把用户留在上一版课程 */
 try{
   const old=JSON.parse(localStorage.getItem('ltp2')||'null');
-  if(old && old.__v===APP_VERSION) st=Object.assign(st,old);
-  else st=Object.assign({},DEF);
-}catch(e){ st=Object.assign({},DEF); }
+  /* 只要本地存档结构正常就恢复 —— 不再要求版本号完全一致，
+     否则每次升级版本号都会把学习者打回第 1 页（这是之前的 bug）。 */
+  if(old && typeof old==='object' && typeof old.lesson==='number'){
+    st=Object.assign(st,old);
+  }
+}catch(e){ }
 st.__v=APP_VERSION;
 const save=()=>{ try{localStorage.setItem('ltp2',JSON.stringify(st));}catch(e){} };
 const $=id=>document.getElementById(id);
@@ -3020,7 +3077,9 @@ function render(){
     </div>`;
   }).join('');
 
-  $('dots').innerHTML='<b>'+(st.idx+1)+'</b> / '+ps.length;
+  $('dots').innerHTML='<b>'+(st.idx+1)+'</b> / '+ps.length
+        + '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"'
+        + ' stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>';
   applyUI();
   document.body.classList.toggle('quiz',!!st.quiz);
   $('btnQuiz').classList.toggle('on',!!st.quiz);
@@ -3313,7 +3372,157 @@ try{
     URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/manifest+json'}));
 }catch(e){}
 
-applyUI(); render(); buildSheet();
+applyUI();
+
+/* =========================================================
+   搜索 / 跳转：点底部页码打开，可按英文或中文搜索，也可直接跳页
+   ========================================================= */
+const FIND_ICO='';
+function findIndex(){
+  /* 建立全部可搜索条目：每页取学习语言 + 对照语言的四句文本 */
+  const out=[];
+  LESSONS.forEach(function(ls,li){
+    ls.pages.forEach(function(p,pi){
+      let zh='', en='';
+      (p.s||[]).forEach(function(it){
+        const a=T(it,'en')||''; const b=T(it,'zh-CN')||T(it,'zh')||'';
+        if(a) en+=(en?' ':'')+a;
+        if(b) zh+=(zh?' ':'')+b;
+      });
+      if(!en && !zh) return;
+      let no='';
+      try{ const raw=TS(p.no,'en')||''; const m=String(raw).match(/\d+/); no=m?m[0]:''; }catch(e){ no=''; }
+      if(!no) no=String(pi+1);
+      out.push({li:li,pi:pi,no:no,en:en,zh:zh});
+    });
+  });
+  return out;
+}
+let FIND_CACHE=null;
+function findData(){ if(!FIND_CACHE) FIND_CACHE=findIndex(); return FIND_CACHE; }
+
+function hl(text,q){
+  const t=String(text||'');
+  if(!q) return escHtml(t);
+  const i=t.toLowerCase().indexOf(q.toLowerCase());
+  if(i<0) return escHtml(t);
+  return escHtml(t.slice(0,i))+'<em>'+escHtml(t.slice(i,i+q.length))+'</em>'+escHtml(t.slice(i+q.length));
+}
+function escHtml(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+function renderFind(q){
+  const box=$('findList'); if(!box) return;
+  q=(q||'').trim();
+  let rows=findData();
+  if(q){
+    const lq=q.toLowerCase();
+    rows=rows.filter(function(r){
+      return (r.en&&r.en.toLowerCase().indexOf(lq)>=0)
+          || (r.zh&&r.zh.indexOf(q)>=0)
+          ;
+    });
+  }
+  if(!rows.length){
+    box.innerHTML='<div class="findEmpty">'+(uiKey()==='zh'?'没有找到，换个词试试':'No result')+'</div>';
+    return;
+  }
+  const show=rows.slice(0,60);
+  box.innerHTML=show.map(function(r){
+    return '<div class="findItem" data-li="'+r.li+'" data-pi="'+r.pi+'">'
+      + '<span class="n">'+r.no+'</span>'
+      + '<span class="c">'+hl(r.en||'',q)
+      + (r.zh?'<span class="zh">'+hl(r.zh,q)+'</span>':'')+'</span></div>';
+  }).join('')
+  + (rows.length>60?'<div class="findEmpty">'+(uiKey()==='zh'?('还有 '+(rows.length-60)+' 条，继续输入更精确'):('+'+(rows.length-60)+' more'))+'</div>':'');
+  box.querySelectorAll('.findItem').forEach(function(el){
+    el.onclick=function(){
+      st.lesson=+el.getAttribute('data-li'); st.idx=+el.getAttribute('data-pi');
+      save(); closeFind(); render();
+    };
+  });
+}
+function openFind(){
+  const m=$('findMask'); if(!m) return;
+  m.classList.add('open');
+  const ph=(uiKey()==='zh')?'搜索句子或输入页码':'Search or type a page number';
+  const inp=$('findInput'); if(inp) inp.placeholder=ph;
+  renderFind('');
+  setTimeout(function(){ try{ inp.focus(); }catch(e){} },120);
+}
+function closeFind(){
+  const m=$('findMask'); if(m) m.classList.remove('open');
+  const inp=$('findInput'); if(inp){ inp.value=''; inp.blur(); }
+}
+function initFind(){
+  const d=$('dots'); if(d){
+    d.onclick=openFind;
+    d.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openFind(); } };
+  }
+  const x=$('findX'); if(x){ x.onclick=closeFind; }
+  const m=$('findMask'); if(m){ m.onclick=function(e){ if(e.target===m) closeFind(); }; }
+  const inp=$('findInput'); if(inp){
+    inp.oninput=function(){
+      const q=inp.value.trim();
+      /* 纯数字 → 直接跳到该页 */
+      if(/^\d+$/.test(q)){
+        const n=parseInt(q,10);
+        const ps=cur();
+        if(n>=1 && n<=ps.length){ st.idx=n-1; save(); closeFind(); render(); return; }
+      }
+      renderFind(q);
+    };
+    inp.onkeydown=function(e){ if(e.key==='Enter'){ inp.blur(); } };
+  }
+}
+initFind();
+
+/* =========================================================
+   记忆上次进度：下次打开时提示「继续上次学习」
+   ========================================================= */
+(function(){
+  try{
+    const raw=localStorage.getItem('ltp2');
+    if(!raw) return;                       /* 全新用户，不打扰 */
+    /* 进度已在启动时自动恢复（st 就是存档），这里只是告知一声，
+       并给一个「从头开始」的出口 —— 避免学习者不知道自己身在何处。 */
+    if(typeof st.idx!=='number') return;
+    if(st.lesson===0 && st.idx===0) return;      /* 本来就在第 1 页，不用提示 */
+    const L=LESSONS[st.lesson];
+    if(!L) return;
+    const pageName=(function(){
+      let no='';
+      try{ const m=String(TS(L.pages[st.idx].no,'en')||'').match(/\d+/); no=m?m[0]:''; }catch(e){}
+      return no||String(st.idx+1);
+    })();
+    const zh=(uiKey()==='zh');
+    setTimeout(function(){
+      const box=document.createElement('div');
+      box.style.cssText='position:fixed;left:50%;transform:translateX(-50%);'
+        +'bottom:calc(74px + env(safe-area-inset-bottom));z-index:38;width:calc(100% - 28px);max-width:692px;'
+        +'background:var(--card);border:1px solid var(--line);border-radius:12px;'
+        +'box-shadow:0 6px 22px rgba(0,0,0,.16);padding:10px 12px;display:flex;gap:10px;align-items:center;'
+        +'font-size:14px;animation:ctpfade .25s ease';
+      box.innerHTML='<span style="flex:1;min-width:0">'
+        + (zh?('已回到上次：第 <b>'+pageName+'</b> 页'):('Back to page <b>'+pageName+'</b>'))
+        + '</span>'
+        + '<button id="ctpGo" style="flex:0 0 auto;border:0;background:var(--accent);color:#fff;'
+        + 'border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">'
+        + (zh?'继续':'Continue')+'</button>'
+        + '<button id="ctpNo" style="flex:0 0 auto;border:0;background:transparent;color:var(--muted);'
+        + 'border-radius:8px;padding:7px 6px;font-size:13px;cursor:pointer;font-family:inherit">'
+        + (zh?'从头开始':'Restart')+'</button>';
+      document.body.appendChild(box);
+      const close=function(){ try{ box.remove(); }catch(e){} };
+      document.getElementById('ctpGo').onclick=close;
+      document.getElementById('ctpNo').onclick=function(){
+        st.lesson=0; st.idx=0; save(); close(); render();
+      };
+      setTimeout(close, 9000);   /* 9 秒后自动消失，不打扰 */
+    }, 700);
+  }catch(e){}
+})();
+ render(); buildSheet();
 </script>
 </body>
 </html>
