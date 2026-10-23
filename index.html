@@ -219,6 +219,64 @@ body.quiz .main{color:transparent;background:var(--hair);border-radius:4px;trans
 .ans:not(.on){color:transparent;text-shadow:0 0 9px rgba(90,80,60,.5);user-select:none}
 .rvhint{font-size:11.5px;color:var(--muted);margin-top:6px;text-align:center}
 
+/* ---------- 跟读对比：iOS 底部卡片 ---------- */
+.shMask{position:fixed;left:0;top:0;right:0;bottom:0;z-index:46;
+  background:rgba(30,26,20,.42);display:none;align-items:flex-end}
+.shMask.open{display:flex}
+.shCard{width:100%;background:var(--bg);border-radius:24px 24px 0 0;
+  padding:8px 16px calc(24px + env(safe-area-inset-bottom));
+  max-height:90vh;overflow:auto;overscroll-behavior:contain;
+  animation:shUp .26s cubic-bezier(.2,.7,.3,1)}
+@keyframes shUp{from{transform:translateY(18px);opacity:.6}to{transform:translateY(0);opacity:1}}
+.shGrab{width:38px;height:4px;border-radius:2px;background:rgba(0,0,0,.16);margin:2px auto 8px}
+.shHead{display:flex;align-items:center;justify-content:space-between;padding:0 2px 10px}
+.shTitle{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.shSeg{display:flex;width:100%;margin:0 0 12px}
+.shSeg button{flex:1;text-align:center;padding:7px 4px;font-size:12.5px}
+.shTarget{background:var(--page);border-radius:14px;padding:14px 15px;
+  font-size:17px;line-height:1.45;color:var(--ink);letter-spacing:-.005em;
+  box-shadow:0 .5px 0 rgba(0,0,0,.04),0 4px 14px rgba(48,40,28,.06);min-height:62px}
+.shRecWrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 0 12px}
+.shMic{width:66px;height:66px;border-radius:50%;border:0;background:var(--ink);color:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 3px 12px rgba(28,27,25,.24);transition:transform .12s,background .2s}
+.shMic:active{transform:scale(.92)}
+.shMic svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.shMic.rec{background:var(--accent);animation:ctppulse 1.4s ease-out infinite}
+.shHint{font-size:12.5px;color:var(--muted);text-align:center}
+.shTime{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;height:15px}
+.shWave{display:flex;align-items:flex-end;gap:3px;height:22px;opacity:0;transition:opacity .2s}
+.shWave.on{opacity:1}
+.shWave i{width:3px;height:5px;border-radius:2px;background:var(--accent);display:block;
+  animation:shw .8s ease-in-out infinite}
+.shWave i:nth-child(2){animation-delay:.09s}.shWave i:nth-child(3){animation-delay:.18s}
+.shWave i:nth-child(4){animation-delay:.27s}.shWave i:nth-child(5){animation-delay:.36s}
+.shWave i:nth-child(6){animation-delay:.45s}.shWave i:nth-child(7){animation-delay:.54s}
+@keyframes shw{0%,100%{height:5px}50%{height:20px}}
+.shBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 12px}
+.shBtn{border:0;background:var(--page);border-radius:12px;padding:11px 4px;font-size:12.5px;
+  font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit;
+  box-shadow:0 .5px 0 rgba(0,0,0,.04),0 3px 10px rgba(48,40,28,.07);transition:transform .1s}
+.shBtn:active{transform:scale(.96)}
+.shBtn:disabled{opacity:.38}
+.shHeard{background:var(--page);border-radius:14px;padding:12px 14px;margin-bottom:10px;
+  box-shadow:0 .5px 0 rgba(0,0,0,.04),0 4px 14px rgba(48,40,28,.06)}
+.shHeardT{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:7px}
+.shWords{font-size:15px;line-height:1.6}
+.shWords b{font-weight:500;color:var(--muted);margin-right:3px}
+.shWords b.ok{color:#2f7a4f;font-weight:600}
+.shNote{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.5}
+.val{font-style:normal;font-size:12.5px;color:var(--muted);max-width:58%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mic{flex:0 0 38px;height:38px;border-radius:50%;border:0;background:transparent;
+  color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:background .16s,transform .1s}
+.mic:active{background:rgba(0,0,0,.06);transform:scale(.9)}
+.mic svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
+
 /* ---------- 搜索 ---------- */
 .findMask{position:fixed;left:0;top:0;right:0;bottom:0;z-index:45;
   background:rgba(30,26,20,.40);display:none;align-items:flex-start}
@@ -268,6 +326,7 @@ body.finding header,body.finding .bar .in{backdrop-filter:none!important;-webkit
     <div class="pg" id="dots" role="button" tabindex="0" aria-label="Search or jump to a page"></div>
     <div class="prog"><i class="done" id="pdone"></i><i class="cur" id="pfill"></i></div>
   </div>
+  <button class="mic" id="btnMic" aria-label="Shadowing"></button>
   <button class="play" id="play" aria-label="Read this page"></button>
   <div class="nav" id="next" role="button" tabindex="0" aria-label="Next page"></div>
 </div></div>
@@ -279,6 +338,32 @@ body.finding header,body.finding .bar .in{backdrop-filter:none!important;-webkit
     <div class="findX" id="findX" role="button" tabindex="0">✕</div>
   </div>
   <div class="findList" id="findList"></div>
+</div></div>
+
+<div class="shMask" id="shMask"><div class="shCard">
+  <div class="shGrab"></div>
+  <div class="shHead">
+    <div class="shTitle">Shadowing</div>
+    <button class="shX" id="shClose" aria-label="Close"></button>
+  </div>
+  <div class="seg shSeg" id="shSeg"></div>
+  <div class="shTarget" id="shTarget"></div>
+  <div class="shRecWrap">
+    <button class="shMic" id="shMic" aria-label="Record"></button>
+    <div class="shWave" id="shWave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="shHint" id="shHint">Tap to record, tap again to stop</div>
+    <div class="shTime" id="shTime"></div>
+  </div>
+  <div class="shBtns">
+    <button class="shBtn" id="shPlayN">Native</button>
+    <button class="shBtn" id="shPlayU" disabled>Yours</button>
+    <button class="shBtn" id="shPlayB" disabled>Both</button>
+  </div>
+  <div class="shHeard" id="shHeard" style="display:none">
+    <div class="shHeardT">You said</div>
+    <div class="shWords" id="shWords"></div>
+  </div>
+  <div class="shNote" id="shNote"></div>
 </div></div>
 
 <div class="sheet" id="sheet"><div class="card">
@@ -303,6 +388,7 @@ body.finding header,body.finding .bar .in{backdrop-filter:none!important;-webkit
     <div class="row"><span data-ui="rate"></span><div class="seg" id="segRate"></div></div>
     <div class="row"><span data-ui="tapSpeak"></span><div class="sw" id="swTap"></div></div>
     <div class="row"><span data-ui="autoRead"></span><div class="sw" id="swAuto"></div></div>
+    <div class="row"><span>Voice</span><i class="val" id="vName">—</i></div>
   </div>
 </div></div>
 
@@ -2009,6 +2095,26 @@ function scoreVoice(v,want,base){
   if(v.default) sc+=5;
   return sc;
 }
+/* 英文发音质量分级：优先 Apple 高质量真人语音 > Google > Microsoft Natural。
+   很多安卓机默认装的是 Pico / eSpeak（机械感极强），排到最后。 */
+const EN_RANK=[
+  ['samantha',100],['daniel',96],['alex',92],['karen',78],['moira',74],['tessa',72],['fiona',70],
+  ['google us english',98],['google uk english',86],
+  ['microsoft aria',94],['microsoft jenny',90],['microsoft guy',88],
+  ['microsoft zira',66],['microsoft david',64],
+  ['natural',58],['neural',58],['premium',52],['enhanced',48],['siri',46]
+];
+const EN_BAD=[['espeak',-100],['pico',-100],['compact',-70]];
+function enScore(v){
+  const nm=String(v.name||'').toLowerCase();
+  let s=0;
+  EN_RANK.forEach(function(r){ if(nm.indexOf(r[0])>=0) s+=r[1]; });
+  EN_BAD.forEach(function(r){ if(nm.indexOf(r[0])>=0) s+=r[1]; });
+  if(/^en(-|$)/i.test(String(v.lang||''))) s+=10;
+  if(v.localService) s+=8;
+  if(v.default) s+=3;
+  return s;
+}
 function pickVoice(code){
   if(!VOICES.length) loadVoices();
   if(!VOICES.length) return null;
@@ -2017,10 +2123,27 @@ function pickVoice(code){
   const cand=[];
   VOICES.forEach(function(v){ const sc=scoreVoice(v,want,base); if(sc!==null) cand.push({v:v,s:sc}); });
   if(!cand.length) return null;
+  if(base==='en'){
+    /* 英文：改用音质分级排序，避开机械的 Pico / eSpeak */
+    cand.forEach(function(c){ c.s=enScore(c.v); });
+  }
   cand.sort(function(a,b){ return b.s-a.s; });
   return cand[0].v;
 }
-/* 设置面板用：列出当前语言可用语音 + 音质评价 */
+function curVoiceName(){
+  try{ const v=pickVoice('en'); return v?String(v.name||''):''; }catch(e){ return ''; }
+}
+/* 第一次交互时预热语音引擎：iOS 上首次 speak 常常无声 */
+let WARMED=false;
+function warmSpeech(){
+  if(WARMED||!canSpeak()) return; WARMED=true;
+  try{
+    const u=new SpeechSynthesisUtterance(' ');
+    u.volume=0; u.rate=2;
+    const v=pickVoice('en'); if(v){ u.voice=v; u.lang=v.lang||'en-US'; } else u.lang='en-US';
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
 function utter(text,code){
   const u=new SpeechSynthesisUtterance(text);
   u.lang=SPEECH[code]||code;
@@ -2033,44 +2156,84 @@ function utter(text,code){
    朗读前转成正常大小写，页面显示仍保留原书原貌。 */
 function ttsText(t){
   if(!t) return t;
-  /* iOS 语音引擎会把单独的大写 "I" 念成 "capital I"（读成字母名）。
-     整句只有这一个词时改用同音词，发音仍是 /aɪ/，页面显示不受影响。 */
-  const raw=String(t).trim();
+  const s0=String(t).replace(/[‘’`]/g,"'").replace(/[“”]/g,'"').replace(/\s+/g,' ').trim();
+  if(!s0) return t;
+  /* 整句全大写（THIS IS A MAN）先记下来，后面转成句首大写的正常句子 */
+  const allCaps=/\s/.test(s0) && s0===s0.toUpperCase() && /[A-Z]/.test(s0);
+  const raw=s0.replace(/\s*&\s*/g,' and ').replace(/\s*=\s*/g,' equals ').trim();
+  if(!raw) return t;
+  /* iOS 语音引擎会把单独的大写 "I" 念成 "capital I"（读成字母名）。 */
   if(raw==='I') return 'eye';
-  /* 整格只有一个全大写单词（HE / SHE / IT / THEY / YOU …）
-     iOS 对「首字母大写 + 很短」的串会当成首字母缩写逐字母念（S-H-E、I-T），
-     改成全小写后引擎才会当普通单词读。 */
+  /* 整格只有一个全大写单词（HE / SHE / IT / THEY / YOU …）时逐字母念，改小写。 */
   if(/^[A-Za-z']{1,6}$/.test(raw)) return raw.toLowerCase();
-  return String(t).replace(/[A-Za-z][A-Za-z']*/g, function(w){
-    // 长度 >=2 且全部大写 → 首字母大写、其余小写；单字母（I / A）原样保留
+  if(allCaps){
+    let s=raw.toLowerCase();
+    s=s.replace(/(^|[.!?]\s+)([a-z])/g, function(m,p,c){ return p+c.toUpperCase(); });
+    s=s.replace(/(^|\s)i(\s|$)/g,'$1I$2');
+    return s;
+  }
+  return raw.replace(/[A-Za-z][A-Za-z']*/g, function(w){
     if(w.length>=2 && w===w.toUpperCase() && /^[A-Z']+$/.test(w)){
       return w.charAt(0)+w.slice(1).toLowerCase();
     }
     return w;
   });
 }
-/* 音频文件缺失时（比如只上传了 index.html 没传 audio/），
-   不要每次点击都去请求一个 404 —— 连续失败几次后自动关闭该路径，直接走系统朗读。 */
-
+/* 按句切分：整页连读时逐句朗读，句与句之间留停顿，听起来才自然 */
+function splitSents(t){
+  const s=String(t||'').trim(); if(!s) return [];
+  const m=s.match(/[^.!?]+[.!?]+["'”’]?\s*|[^.!?]+$/g);
+  const out=m?m.map(function(x){ return x.trim(); }).filter(Boolean):[s];
+  return out.length?out:[s];
+}
+/* 朗读序号：每次新的朗读都会让上一段自动失效 */
+let SEQ_ID=0, SEQ_DONE=null;
+function hlClear(){
+  try{
+    document.querySelectorAll('#grid .speaking').forEach(function(e){ e.classList.remove('speaking'); });
+    document.querySelectorAll('#grid .hz.on').forEach(function(e){ e.classList.remove('on'); });
+  }catch(e){}
+}
+/* 逐句朗读：句间停顿 + 引擎不回调 onend 时的兜底推进 */
+function speakUnits(units,gap){
+  gap=(gap==null)?280:gap;
+  if(!canSpeak()||!units.length) return;
+  const my=++SEQ_ID;
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  let i=0;
+  function step(){
+    if(my!==SEQ_ID) return;
+    if(i>=units.length){ hlClear(); if(SEQ_DONE){ const f=SEQ_DONE; SEQ_DONE=null; f(); } return; }
+    const u=units[i];
+    hlCell(u.i,true);
+    const ut=utter(u.t,u.c);
+    let fin=false;
+    const next=function(){
+      if(fin) return; fin=true;
+      hlCell(u.i,false); i++;
+      setTimeout(step,gap);
+    };
+    ut.onend=next; ut.onerror=next;
+    try{ window.speechSynthesis.speak(ut); }catch(e){ next(); return; }
+    /* 兜底：极少数引擎不触发 onend，按字数估算时长后强制推进 */
+    setTimeout(next, Math.max(900, u.t.length*78/(st.rate||0.85))+2600);
+  }
+  step();
+}
 function stopSpeak(){
+  SEQ_ID++; SEQ_DONE=null;
   try{ if(hasAndroid()){ window.AndroidTTS.stop(); return; } }catch(e){}
   try{ if(canSpeak()) window.speechSynthesis.cancel(); }catch(e){}
+  hlClear();
 }
-/* ---- 在线发音兜底 ----
-   国行手机常只有中文语音（讯飞系统精简版），英文读不出来或很难听。
-   开启后：先尝试在线取音（有道公开发音接口），失败自动回落系统引擎。 */
-
-/* 只有一个单词、且很短的英文（I / YOU / HE / SHE / IT / THEY …）：
-   系统引擎容易逐字母念，优先用词典真人发音，取不到再回系统引擎。 */
-/* 发音即时化：点图直接用系统语音朗读，不再先尝试在线取音（省掉约 1 秒等待）。
-   ttsText() 已把全大写原书英文转成正常大小写，避免逐字母念。 */
 function speak(text,code){
   if(!text) return;
   fallbackSpeak(ttsText(text),code);
 }
-/* 系统引擎兜底 */
+/* 系统引擎兜底：点图发音直接用系统语音，无等待 */
 function fallbackSpeak(tt,code){
   if(!canSpeak()) return;
+  SEQ_ID++;
   try{ if(hasAndroid()){ window.AndroidTTS.stop(); window.AndroidTTS.speak(tt, SPEECH[code]||code); return; } }catch(e){}
   try{ window.speechSynthesis.cancel(); window.speechSynthesis.speak(utter(tt,code)); }catch(e){}
 }
@@ -2079,15 +2242,11 @@ function speakSeq(items){
   try{
     if(hasAndroid()){ window.AndroidTTS.stop(); items.forEach(it=>window.AndroidTTS.speak(ttsText(it.t), SPEECH[it.c]||it.c)); return; }
   }catch(e){}
-  try{
-    window.speechSynthesis.cancel();
-    items.forEach((it,i)=>{
-      const u=utter(it.t,it.c);
-      u.onstart=function(){ hlCell(i,true); };
-      u.onend=u.onerror=function(){ hlCell(i,false); };
-      window.speechSynthesis.speak(u);
-    });
-  }catch(e){}
+  const units=[];
+  items.forEach(function(it,ci){
+    splitSents(it.t).forEach(function(sn){ units.push({t:sn,i:ci,c:it.c}); });
+  });
+  speakUnits(units,280);
 }
 /* 朗读时高亮对应的那一格：让「点哪张图、说哪句话」看得见 */
 let hlTimer=null;
@@ -2317,6 +2476,8 @@ function buildSheet(){
     st.lesson=+b.dataset.i; st.idx=0; save(); render(); buildSheet(); };
 
   renderStats();
+  const vn=document.getElementById('vName');
+  if(vn) vn.textContent=curVoiceName()||'System default';
 
   const sw=(id,k,cb)=>{ const el=$(id); el.classList.toggle('on',!!st[k]);
     el.onclick=()=>{ st[k]=!st[k]; el.classList.toggle('on',st[k]); save(); render(); if(cb)cb(); }; };
@@ -2727,13 +2888,14 @@ initFind();
           'a2 2 0 014 0V6a1.6 1.6 0 002.7 1.1l.1-.1a2 2 0 112.8 2.8l-.1.1'+
           'a1.6 1.6 0 00.3 1.8V12a1.6 1.6 0 001.4 1H20a2 2 0 010 4h-.2'+
           'a1.6 1.6 0 00-1.4 1z"/></svg>',
+    mic:  SV+'<rect x="9" y="2.6" width="6" height="11" rx="3"/><path d="M5.5 11.4a6.5 6.5 0 0013 0"/><path d="M12 17.9v3.2"/></svg>',
     play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12z"/></svg>',
     pause:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="5" width="3.6" height="14" rx="1.2"/>'+
           '<rect x="13.4" y="5" width="3.6" height="14" rx="1.2"/></svg>'
   };
   function set(id,h){ var e=document.getElementById(id); if(e) e.innerHTML=h; }
   set('prev',ICO.prev); set('next',ICO.next);
-  set('btnQuiz',ICO.quiz); set('btnSet',ICO.set);
+  set('btnQuiz',ICO.quiz); set('btnSet',ICO.set); set('btnMic',ICO.mic);
 
   var play=document.getElementById('play');
   if(!play) return;
@@ -2756,6 +2918,148 @@ initFind();
   };
   sync();
   setInterval(sync,320);
+})();
+
+/* =========================================================
+   跟读对比：录下自己的发音，与原生发音 A/B 对照
+   ========================================================= */
+(function(){
+  const M=document.getElementById('shMask'); if(!M) return;
+  const seg=document.getElementById('shSeg'), tgt=document.getElementById('shTarget'),
+        mic=document.getElementById('shMic'), hint=document.getElementById('shHint'),
+        wave=document.getElementById('shWave'), tm=document.getElementById('shTime'),
+        bN=document.getElementById('shPlayN'), bU=document.getElementById('shPlayU'),
+        bB=document.getElementById('shPlayB'),
+        heard=document.getElementById('shHeard'), words=document.getElementById('shWords'),
+        note=document.getElementById('shNote');
+  mic.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.6" width="6" height="11" rx="3"/>'
+    +'<path d="M5.5 11.4a6.5 6.5 0 0013 0"/><path d="M12 17.9v3.2"/></svg>';
+
+  let idx=0, rec=null, stream=null, chunks=[], t0=0, tk=null, asr=null, AUD=null;
+  const urls={}, durs={};
+  const items=()=>{ try{ return pageItems(); }catch(e){ return []; } };
+  const curText=()=>{ const it=items()[idx]; return it?String(it.t||''):''; };
+  const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  function paint(){
+    const it=items();
+    seg.innerHTML=it.map((_,i)=>'<button data-i="'+i+'" class="'+(i===idx?'on':'')+'">'+(i+1)+'</button>').join('');
+    tgt.textContent=curText()||'—';
+    const has=!!urls[idx];
+    bU.disabled=!has; bB.disabled=!has;
+    heard.style.display='none';
+    note.textContent=has?('Recorded '+durs[idx]+' — compare it with the native voice.')
+                        :'Listen first, then record and compare.';
+    tm.textContent='';
+  }
+  function stopStream(){ try{ if(stream) stream.getTracks().forEach(t=>t.stop()); }catch(e){} stream=null; }
+  function tick(){ tm.textContent=((Date.now()-t0)/1000).toFixed(1)+'s'; }
+
+  function startASR(){
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR) return;
+    try{
+      const r=new SR(); r.lang='en-US'; r.interimResults=true; r.continuous=false; r.maxAlternatives=1;
+      r.onresult=ev=>{ let txt=''; for(let i=0;i<ev.results.length;i++) txt+=ev.results[i][0].transcript; showHeard(txt); };
+      r.onerror=()=>{}; r.onend=()=>{};
+      r.start(); asr=r;
+    }catch(e){ asr=null; }
+  }
+  function showHeard(txt){
+    const t=String(txt||'').trim(); if(!t) return;
+    const tw=(curText()||'').toLowerCase().replace(/[^a-z0-9' ]/g,' ').split(/\s+/).filter(Boolean);
+    const set={}; tw.forEach(w=>set[w]=1);
+    const got=t.toLowerCase().replace(/[^a-z0-9' ]/g,' ').split(/\s+/).filter(Boolean);
+    if(!got.length) return;
+    let hit=0;
+    words.innerHTML=got.map(w=>{ const ok=!!set[w]; if(ok) hit++; return '<b class="'+(ok?'ok':'')+'">'+esc(w)+'</b>'; }).join(' ');
+    heard.style.display='';
+    note.textContent='Matched '+Math.min(hit,tw.length)+' of '+tw.length+' words';
+  }
+  function startRec(){
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+      hint.textContent='Recording is not supported here'; return; }
+    navigator.mediaDevices.getUserMedia({audio:true}).then(st2=>{
+      stream=st2; chunks=[];
+      let ok=false;
+      if(window.MediaRecorder){ try{ rec=new MediaRecorder(st2); ok=true; }catch(e){} }
+      if(!ok){ hint.textContent='Recording is not supported here'; stopStream(); return; }
+      rec.ondataavailable=e=>{ if(e.data&&e.data.size) chunks.push(e.data); };
+      rec.onstop=()=>{
+        stopStream(); clearInterval(tk);
+        try{ if(asr){ asr.stop(); } }catch(e){}
+        try{
+          const blob=new Blob(chunks,{type:rec.mimeType||'audio/webm'});
+          if(urls[idx]){ try{ URL.revokeObjectURL(urls[idx]); }catch(e2){} }
+          urls[idx]=URL.createObjectURL(blob);
+          durs[idx]=((Date.now()-t0)/1000).toFixed(1)+'s';
+        }catch(e){}
+        mic.classList.remove('rec'); wave.classList.remove('on');
+        hint.textContent='Tap to record again';
+        paint();
+        setTimeout(playMine,280);
+      };
+      rec.start();
+      t0=Date.now(); tk=setInterval(tick,100);
+      mic.classList.add('rec'); wave.classList.add('on');
+      hint.textContent='Recording… tap to stop';
+      heard.style.display='none';
+      startASR();
+    }).catch(()=>{ hint.textContent='Microphone access denied'; });
+  }
+  function stopRec(){
+    try{ if(rec&&rec.state!=='inactive') rec.stop(); }catch(e){}
+    try{ if(asr){ asr.stop(); } }catch(e){}
+  }
+  function audio(){ if(!AUD) AUD=new Audio(); return AUD; }
+  function playMine(){
+    if(!urls[idx]) return;
+    const a=audio(); a.src=urls[idx]; a.currentTime=0;
+    a.play().catch(()=>{});
+    bU.classList.add('on'); setTimeout(()=>bU.classList.remove('on'),700);
+  }
+  function playNative(){
+    try{ stopSpeak(); }catch(e){}
+    const it=items()[idx]; if(it) speak(it.t,it.c);
+  }
+  function playBoth(){
+    const it=items()[idx]; if(!it) return;
+    try{ stopSpeak(); }catch(e){}
+    const u=utter(ttsText(it.t), it.c);
+    let done=false;
+    const after=()=>{ if(done) return; done=true; setTimeout(playMine,520); };
+    u.onend=after; u.onerror=after;
+    try{ window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }catch(e){ after(); }
+    setTimeout(after, Math.max(1200, String(it.t).length*78/(st.rate||0.85))+2200);
+  }
+  function open(i){
+    const it=items(); if(!it.length) return;
+    idx=(i==null?idx:(i<it.length?i:0));
+    M.classList.add('open'); paint();
+    setTimeout(playNative,320);
+  }
+  function close(){
+    stopRec();
+    try{ stopSpeak(); }catch(e){}
+    try{ if(AUD){ AUD.pause(); } }catch(e){}
+    M.classList.remove('open');
+  }
+  document.getElementById('shClose').onclick=close;
+  const bm=document.getElementById('btnMic'); if(bm) bm.onclick=()=>open(0);
+  M.addEventListener('click',e=>{ if(e.target===M) close(); });
+  seg.addEventListener('click',e=>{
+    const b=e.target.closest?e.target.closest('button'):null; if(!b) return;
+    stopRec(); idx=+b.dataset.i; paint(); playNative();
+  });
+  mic.addEventListener('click',()=>{ if(rec&&rec.state==='recording') stopRec(); else startRec(); });
+  bN.addEventListener('click',playNative);
+  bU.addEventListener('click',playMine);
+  bB.addEventListener('click',playBoth);
+
+  /* 首次交互预热语音引擎，避免 iOS 上第一次点读没声音 */
+  ['pointerdown','touchstart','mousedown'].forEach(ev=>
+    document.addEventListener(ev,warmSpeech,{once:true,passive:true}));
+  window.CTP_SHADOW={open:open,close:close};
 })();
 </script>
 
