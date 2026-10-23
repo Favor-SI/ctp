@@ -268,6 +268,29 @@ body.quiz .main{color:transparent;background:var(--hair);border-radius:4px;trans
 .shWords b{font-weight:500;color:var(--muted);margin-right:3px}
 .shWords b.ok{color:#2f7a4f;font-weight:600}
 .shNote{font-size:11.5px;color:var(--muted);text-align:center;line-height:1.5}
+.shWF{width:100%;height:29px;display:none;margin-top:2px}
+.shWF.on{display:block}
+.shScore{display:flex;gap:13px;align-items:center;background:var(--page);border-radius:14px;
+  padding:12px 14px;margin:2px 0 12px;
+  box-shadow:0 .5px 0 rgba(0,0,0,.04),0 4px 14px rgba(48,40,28,.06)}
+.shScN{flex:0 0 auto;text-align:center;min-width:52px}
+.shScN b{display:block;font-size:26px;font-weight:700;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;line-height:1}
+.shScN small{display:block;font-size:9.5px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);margin-top:3px}
+.shScR{flex:1;min-width:0}
+.shTrack{height:6px;border-radius:3px;background:rgba(0,0,0,.09);overflow:hidden}
+.shTrack i{display:block;height:100%;width:0;border-radius:3px;background:var(--accent);
+  transition:width .4s cubic-bezier(.2,.7,.3,1)}
+.shDur{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);
+  margin-top:6px;font-variant-numeric:tabular-nums}
+.shBest{font-size:11.5px;color:var(--muted);margin-top:3px}
+.shBest b{color:var(--ink);font-weight:600}
+.shBtns2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:-4px 0 12px}
+.shBtn2{border:0;background:transparent;border-radius:12px;padding:9px 4px;font-size:12px;
+  font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.09);transition:transform .1s}
+.shBtn2:active{transform:scale(.96)}
 .val{font-style:normal;font-size:12.5px;color:var(--muted);max-width:58%;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mic{flex:0 0 38px;height:38px;border-radius:50%;border:0;background:transparent;
@@ -351,13 +374,26 @@ body.finding header,body.finding .bar .in{backdrop-filter:none!important;-webkit
   <div class="shRecWrap">
     <button class="shMic" id="shMic" aria-label="Record"></button>
     <div class="shWave" id="shWave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <canvas class="shWF" id="shWF" width="600" height="58"></canvas>
     <div class="shHint" id="shHint">Tap to record, tap again to stop</div>
     <div class="shTime" id="shTime"></div>
+  </div>
+  <div class="shScore" id="shScore" style="display:none">
+    <div class="shScN"><b id="shScoreV">0</b><small>score</small></div>
+    <div class="shScR">
+      <div class="shTrack"><i id="shBarY"></i></div>
+      <div class="shDur"><span id="shDurY">0.0s you</span><span id="shDurN">native —</span></div>
+      <div class="shBest" id="shBest"></div>
+    </div>
   </div>
   <div class="shBtns">
     <button class="shBtn" id="shPlayN">Native</button>
     <button class="shBtn" id="shPlayU" disabled>Yours</button>
     <button class="shBtn" id="shPlayB" disabled>Both</button>
+  </div>
+  <div class="shBtns2">
+    <button class="shBtn2" id="shSlow">Yours 1.0×</button>
+    <button class="shBtn2" id="shRedo">Re-record</button>
   </div>
   <div class="shHeard" id="shHeard" style="display:none">
     <div class="shHeardT">You said</div>
@@ -2935,12 +2971,22 @@ initFind();
   mic.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2.6" width="6" height="11" rx="3"/>'
     +'<path d="M5.5 11.4a6.5 6.5 0 0013 0"/><path d="M12 17.9v3.2"/></svg>';
 
-  let idx=0, rec=null, stream=null, chunks=[], t0=0, tk=null, asr=null, AUD=null;
-  const urls={}, durs={};
+  let idx=0, rec=null, stream=null, chunks=[], t0=0, tk=null, asr=null, AUD=null, AC=null;
+  const urls={}, durs={}, nat={};
+  let unlocked=false, slowI=0, hitN=0, hitT=0, natT0=0, pv=null;
+  const RATES=[1,0.75,0.5];
+  const SIL='data:audio/wav;base64,UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+  const HK='etp_shadow_v1';
+  function hload(){ try{ return JSON.parse(localStorage.getItem(HK)||'{}'); }catch(e){ return {}; } }
+  function hsave(){ try{ localStorage.setItem(HK,JSON.stringify(H)); }catch(e){} }
+  let H=hload();
+  function skey(){ try{ return st.lesson+'|'+st.idx+'|'+idx; }catch(e){ return 'p'+idx; } }
+
   const items=()=>{ try{ return pageItems(); }catch(e){ return []; } };
   const curText=()=>{ const it=items()[idx]; return it?String(it.t||''):''; };
   const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+  function wf(){ return document.getElementById('shWF'); }
   function paint(){
     const it=items();
     seg.innerHTML=it.map((_,i)=>'<button data-i="'+i+'" class="'+(i===idx?'on':'')+'">'+(i+1)+'</button>').join('');
@@ -2948,9 +2994,75 @@ initFind();
     const has=!!urls[idx];
     bU.disabled=!has; bB.disabled=!has;
     heard.style.display='none';
-    note.textContent=has?('Recorded '+durs[idx]+' — compare it with the native voice.')
-                        :'Listen first, then record and compare.';
+    hitN=0; hitT=0;
+    const cv=wf(); if(cv){ cv.className='shWF'+(has?' on':''); }
+    if(has){ drawWF(urls[idx]); showScore(); }
+    else{
+      const box=document.getElementById('shScore'); if(box) box.style.display='none';
+      note.textContent='Listen first, then record and compare.';
+    }
     tm.textContent='';
+  }
+  function rhythmOf(){
+    const y=durs[idx]?parseFloat(durs[idx]):0, n=nat[idx]||0;
+    if(!y||!n) return 0;
+    return Math.max(0, 1-(Math.abs(y-n)/n)*1.6);
+  }
+  function showScore(){
+    const box=document.getElementById('shScore'); if(!box) return;
+    if(!urls[idx]){ box.style.display='none'; return; }
+    box.style.display='';
+    const rh=rhythmOf();
+    const wok=(hitT>0);
+    const sc=Math.max(0,Math.min(100,Math.round(
+      wok ? (0.68*(hitN/hitT)+0.32*rh)*100 : rh*100 )));
+    document.getElementById('shScoreV').textContent=sc;
+    document.getElementById('shBarY').style.width=Math.max(4,sc)+'%';
+    document.getElementById('shDurY').textContent=
+      (durs[idx]?parseFloat(durs[idx]).toFixed(1):'0.0')+'s you';
+    document.getElementById('shDurN').textContent=
+      (nat[idx]?nat[idx].toFixed(1)+'s':'—')+' native';
+    const k=skey(); const h=H[k]||{best:0,n:0,prev:null};
+    let txt;
+    if(wok) txt='Words <b>'+hitN+'/'+hitT+'</b> · Rhythm <b>'+Math.round(rh*100)+'%</b>';
+    else    txt='Rhythm <b>'+Math.round(rh*100)+'%</b> · length vs the native voice';
+    if(h.prev!=null){
+      const d=sc-h.prev;
+      txt += d>0 ? ' · <b>↑ '+d+'</b> vs last' : (d<0 ? ' · '+d+' vs last' : ' · same as last');
+    }
+    if(h.n) txt+=' · Best <b>'+h.best+'</b> ('+h.n+(h.n>1?' tries':' try')+')';
+    document.getElementById('shBest').innerHTML=txt;
+    note.textContent = (wok||rh>0)
+      ? 'Compare the two — then record again and beat your score.'
+      : 'Play Native, then Yours, and listen for the difference.';
+  }
+  function drawWF(u){
+    const cv=wf(); if(!cv||!u) return;
+    const ctx=cv.getContext('2d'); const W=cv.width, Hh=cv.height;
+    ctx.clearRect(0,0,W,Hh);
+    try{
+      if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+      fetch(u).then(r=>r.arrayBuffer()).then(b=>AC.decodeAudioData(b)).then(buf=>{
+        const d=buf.getChannelData(0);
+        const step=Math.max(1,Math.floor(d.length/150));
+        const bars=[]; let mx=0;
+        for(let i=0;i<d.length;i+=step){
+          let v=0,c=0;
+          for(let j=i;j<i+step&&j<d.length;j++){ v+=Math.abs(d[j]); c++; }
+          v=c?v/c:0; bars.push(v); if(v>mx) mx=v;
+        }
+        if(mx<=0) mx=1;
+        ctx.clearRect(0,0,W,Hh);
+        const bw=W/Math.max(1,bars.length);
+        for(let i=0;i<bars.length;i++){
+          const r=bars[i]/mx, h=Math.max(2,r*(Hh-6));
+          ctx.globalAlpha=0.22+0.78*r;
+          ctx.fillStyle='#b4532a';
+          ctx.fillRect(i*bw,(Hh-h)/2,Math.max(1,bw-1),h);
+        }
+        ctx.globalAlpha=1;
+      }).catch(()=>{});
+    }catch(e){}
   }
   function stopStream(){ try{ if(stream) stream.getTracks().forEach(t=>t.stop()); }catch(e){} stream=null; }
   function tick(){ tm.textContent=((Date.now()-t0)/1000).toFixed(1)+'s'; }
@@ -2974,69 +3086,152 @@ initFind();
     let hit=0;
     words.innerHTML=got.map(w=>{ const ok=!!set[w]; if(ok) hit++; return '<b class="'+(ok?'ok':'')+'">'+esc(w)+'</b>'; }).join(' ');
     heard.style.display='';
-    note.textContent='Matched '+Math.min(hit,tw.length)+' of '+tw.length+' words';
+    hitN=Math.min(hit,tw.length); hitT=tw.length;
+    showScore();
+  }
+  function pickMime(){
+    if(!window.MediaRecorder||!window.MediaRecorder.isTypeSupported) return '';
+    const list=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/mpeg',''];
+    for(const m of list){ if(!m||window.MediaRecorder.isTypeSupported(m)) return m; }
+    return '';
   }
   function startRec(){
     if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-      hint.textContent='Recording is not supported here'; return; }
+      hint.textContent='Recording needs HTTPS and a supported browser'; return; }
+    unlockAudio();
     navigator.mediaDevices.getUserMedia({audio:true}).then(st2=>{
       stream=st2; chunks=[];
-      let ok=false;
-      if(window.MediaRecorder){ try{ rec=new MediaRecorder(st2); ok=true; }catch(e){} }
-      if(!ok){ hint.textContent='Recording is not supported here'; stopStream(); return; }
+      let ok=false, err='';
+      if(window.MediaRecorder){
+        const mm=pickMime();
+        try{ rec = mm ? new MediaRecorder(st2,{mimeType:mm}) : new MediaRecorder(st2); ok=true; }
+        catch(e){ err=String(e&&e.message||e); }
+      }
+      if(!ok){ hint.textContent='Recording is not supported here'+(err?' ('+err+')':''); stopStream(); return; }
       rec.ondataavailable=e=>{ if(e.data&&e.data.size) chunks.push(e.data); };
       rec.onstop=()=>{
         stopStream(); clearInterval(tk);
         try{ if(asr){ asr.stop(); } }catch(e){}
+        let bytes=0, blob=null;
+        try{ bytes=chunks.reduce((a,b)=>a+(b.size||0),0); }catch(e){}
+        if(bytes<200){
+          mic.classList.remove('rec'); wave.classList.remove('on');
+          hint.textContent='No sound captured — check the microphone';
+          return;
+        }
         try{
-          const blob=new Blob(chunks,{type:rec.mimeType||'audio/webm'});
+          blob=new Blob(chunks,{type:rec.mimeType||pickMime()||'audio/webm'});
           if(urls[idx]){ try{ URL.revokeObjectURL(urls[idx]); }catch(e2){} }
           urls[idx]=URL.createObjectURL(blob);
           durs[idx]=((Date.now()-t0)/1000).toFixed(1)+'s';
-        }catch(e){}
+        }catch(e){
+          mic.classList.remove('rec'); wave.classList.remove('on');
+          hint.textContent='Could not save the recording'; return;
+        }
         mic.classList.remove('rec'); wave.classList.remove('on');
-        hint.textContent='Tap to record again';
+        hint.textContent='Tap the mic to record again';
         paint();
-        setTimeout(playMine,280);
+        setTimeout(()=>{
+          const k=skey(); const h=H[k]||{best:0,n:0};
+          const rh=rhythmOf();
+          const sc=Math.max(0,Math.min(100,Math.round(
+            hitT>0 ? (0.68*(hitN/hitT)+0.32*rh)*100 : rh*100 )));
+          const sc0=sc;
+          if(hitT>0||(nat[idx]||0)>0){
+            h.prev=(h.n>0&&h.last!=null)?h.last:null;
+            h.n=(h.n||0)+1; h.last=sc;
+            if(sc>h.best) h.best=sc;
+            H[k]=h; hsave();
+          }
+          showScore();
+          tryPlay();
+        },260);
       };
-      rec.start();
+      try{ rec.start(120); }catch(e){ try{ rec.start(); }catch(e2){ hint.textContent='Recorder failed to start'; return; } }
       t0=Date.now(); tk=setInterval(tick,100);
       mic.classList.add('rec'); wave.classList.add('on');
       hint.textContent='Recording… tap to stop';
-      heard.style.display='none';
+      heard.style.display='none'; hitN=0; hitT=0;
       startASR();
-    }).catch(()=>{ hint.textContent='Microphone access denied'; });
+    }).catch(e=>{
+      hint.textContent=(e&&e.name==='NotAllowedError')
+        ? 'Microphone blocked — allow it in the browser settings'
+        : 'Microphone unavailable';
+    });
   }
   function stopRec(){
     try{ if(rec&&rec.state!=='inactive') rec.stop(); }catch(e){}
     try{ if(asr){ asr.stop(); } }catch(e){}
   }
   function audio(){ if(!AUD) AUD=new Audio(); return AUD; }
-  function playMine(){
+  /* iOS Safari 要求音频元素在用户手势中被“解锁”，否则后续 play() 会被静默拒绝 */
+  function unlockAudio(){
+    if(unlocked) return;
+    try{
+      const s=new Audio(SIL); s.volume=0.01;
+      const q=s.play();
+      if(q&&q.then) q.then(()=>{ unlocked=true; }).catch(()=>{});
+      else unlocked=true;
+    }catch(e){}
+    try{
+      const a=audio();
+      if(!a.src){ a.src=SIL; a.volume=0.01;
+        const r=a.play(); if(r&&r.then) r.then(()=>{unlocked=true;}).catch(()=>{});
+        else unlocked=true; }
+    }catch(e){}
+  }
+  function curRate(){ return RATES[slowI]||1; }
+  function tryPlay(){
     if(!urls[idx]) return;
-    const a=audio(); a.src=urls[idx]; a.currentTime=0;
-    a.play().catch(()=>{});
-    bU.classList.add('on'); setTimeout(()=>bU.classList.remove('on'),700);
+    unlockAudio();
+    const a=audio();
+    try{ a.playbackRate=curRate(); }catch(e){}
+    a.src=urls[idx]; a.currentTime=0;
+    let played=false;
+    try{
+      const p=a.play();
+      if(p&&p.then) p.then(()=>{ played=true; }).catch(()=>{
+        hint.textContent='Tap “Yours” to hear your recording'; });
+      else played=true;
+    }catch(e){ hint.textContent='Tap “Yours” to hear your recording'; }
+    if(played||!a.paused){ bU.classList.add('on'); setTimeout(()=>bU.classList.remove('on'),700); }
   }
-  function playNative(){
+  /* 实测原生语音的真实时长，用作节奏对比基准 */
+  function playNative(after){
     try{ stopSpeak(); }catch(e){}
-    const it=items()[idx]; if(it) speak(it.t,it.c);
-  }
-  function playBoth(){
-    const it=items()[idx]; if(!it) return;
-    try{ stopSpeak(); }catch(e){}
-    const u=utter(ttsText(it.t), it.c);
+    const it=items()[idx];
+    if(!it){ if(after) after(); return; }
+    clearInterval(pv);
+    const t1=Date.now(); nat[idx]=0;
     let done=false;
-    const after=()=>{ if(done) return; done=true; setTimeout(playMine,520); };
-    u.onend=after; u.onerror=after;
-    try{ window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); }catch(e){ after(); }
-    setTimeout(after, Math.max(1200, String(it.t).length*78/(st.rate||0.85))+2200);
+    const fin=()=>{
+      if(done) return; done=true;
+      clearInterval(pv); bN.classList.remove('on');
+      if(nat[idx]){
+        if(nat[idx]<0.4||nat[idx]>25) nat[idx]=Math.max(0.8,String(it.t||'').length*0.075/(st.rate||0.85));
+        showScore();
+      }
+      if(after) setTimeout(after,520);
+    };
+    bN.classList.add('on');
+    speak(it.t,it.c);
+    setTimeout(()=>{
+      pv=setInterval(()=>{
+        try{
+          if(!window.speechSynthesis.speaking){
+            nat[idx]=(Date.now()-t1)/1000; fin();
+          }
+        }catch(e){ fin(); }
+      },70);
+    },220);
+    setTimeout(fin, Math.max(1500, String(it.t).length*85/(st.rate||0.85))+4500);
   }
+  function playBoth(){ playNative(tryPlay); }
   function open(i){
     const it=items(); if(!it.length) return;
     idx=(i==null?idx:(i<it.length?i:0));
     M.classList.add('open'); paint();
-    setTimeout(playNative,320);
+    setTimeout(()=>playNative(),320);
   }
   function close(){
     stopRec();
@@ -3052,9 +3247,23 @@ initFind();
     stopRec(); idx=+b.dataset.i; paint(); playNative();
   });
   mic.addEventListener('click',()=>{ if(rec&&rec.state==='recording') stopRec(); else startRec(); });
-  bN.addEventListener('click',playNative);
-  bU.addEventListener('click',playMine);
+  bN.addEventListener('click',()=>playNative());
+  bU.addEventListener('click',tryPlay);
   bB.addEventListener('click',playBoth);
+  const bS=document.getElementById('shSlow'), bR=document.getElementById('shRedo');
+  if(bS) bS.onclick=()=>{
+    slowI=(slowI+1)%RATES.length;
+    bS.textContent='Yours '+RATES[slowI].toFixed(2).replace(/0$/,'')+'×';
+    if(urls[idx]) tryPlay();
+  };
+  if(bR) bR.onclick=()=>{
+    if(urls[idx]){ try{ URL.revokeObjectURL(urls[idx]); }catch(e){} }
+    delete urls[idx]; delete durs[idx];
+    hitN=0; hitT=0; paint(); playNative();
+  };
+  /* 首次手势解锁音频，避免 iOS 上第一次播放被静默拦截 */
+  ['pointerdown','touchstart','mousedown'].forEach(ev=>
+    document.addEventListener(ev,unlockAudio,{once:true,passive:true}));
 
   /* 首次交互预热语音引擎，避免 iOS 上第一次点读没声音 */
   ['pointerdown','touchstart','mousedown'].forEach(ev=>
